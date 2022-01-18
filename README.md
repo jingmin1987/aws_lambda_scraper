@@ -26,3 +26,6 @@
     
     * Email/SMTP \
     TBD - I used to program such function in Matlab. I see Python has package to handle similar tasks
+    
+    * Scraping Interval
+    It makes sense to apply random delays between 0ms and 10ms so the IP address won't be blacklisted
