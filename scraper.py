@@ -23,8 +23,13 @@ def aws_scraper_handle(event, context):
     :param context: A dict like object containing context information
     :return: None
     """
-    pass
 
+    if not ('name' in event) or not ('pass' in event):
+        logger.warning('Keys not found in the event variable')
+        return {'status_code': 400}
+
+    credential = {'name': event['name'], 'pass': event['pass']}
+    return aws_scraper(credential)
 
 def aws_scraper(credential):
     """
@@ -48,14 +53,14 @@ def aws_scraper(credential):
 
     if r.text.find(payload['name']) == -1:
         logger.warning(f'{now()}: Logging in failed for account {payload["name"]}. Script terminating.')
-        return
+        return {'status_code': 400}
     else:
         logger.info(f'{now()}: Logging in successful for account {payload["name"]}')
 
     r = s.get(TARGET_URL, headers=HEADERS)
     if r.status_code != 200:
         logger.warning(f'{now()}: Failed to get content from {TARGET_URL}. Script terminating')
-        return
+        return {'status_code': 400}
     else:
         logger.info(f'{now()}: Successfully connected to {TARGET_URL}.')
 
@@ -63,25 +68,27 @@ def aws_scraper(credential):
         scrape_all_ticker_charts(s)
     except Exception as e:
         logger.warning(f'{now()}: Exception occurred during scraping. Message: {repr(e)}')
-        return
+        return {'status_code': 500}
 
     try:
         write_to_s3()
     except Exception as e:
         logger.warning(f'{now()}: Exception occurred during writing to S3 bucket. Message: {repr(e)}')
-        return
+        return {'status_code': 500}
 
     try:
         recommendations = scrape_all_recommendations(s)
     except Exception as e:
         logger.warning(f'{now()}: Exception occurred during scraping recommendations. Message: {repr(e)}')
-        return
+        return {'status_code': 500}
 
     try:
         write_to_dynamodb(recommendations)
     except Exception as e:
         logger.warning(f'{now()}: Exception occurred during writing to DynamoDB. Message: {repr(e)}')
-        return
+        return {'status_code': 500}
+
+    return {'status_code': 200}
 
 def scrape_all_ticker_charts(session):
     """
