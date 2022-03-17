@@ -92,6 +92,8 @@ def aws_scraper(credential):
 
 def scrape_all_ticker_charts(session):
     """
+    Loops through all tickers and scrape their respective chart from the server. The
+    size of each chart is about 33kb and in total there are 1.6k charts, totalling ~50MB
 
     :param session: An authenticated session
     :return: None

@@ -9,7 +9,7 @@
     root/ \
     |-packages/ <- dependencies \
     |-scraper.py <- main function(s) \
-    |-others/ <- not required by lambda \
+    |-others/ <- not required by lambda 
     
 * **Some Notes**
 
